@@ -105,7 +105,7 @@ export const DomainSection = () => {
     return Math.floor((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
   };
 
-  const daysLeft = getDaysUntilExpiry(domainData.expiry);
+  const daysLeft = getDaysUntilExpiry(domainData.expiryDate);
 
   const handleSync = (serviceId: string) => {
     setSyncing(serviceId);

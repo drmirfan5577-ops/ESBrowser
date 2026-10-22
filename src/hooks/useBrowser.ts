@@ -18,11 +18,8 @@ const createTab = (url = HOME_URL, title = 'New Tab'): Tab => ({
 });
 
 export const useBrowser = () => {
-  const [tabs, setTabs] = useState<Tab[]>([createTab()]);
-  const [activeTabId, setActiveTabId] = useState<string>(() => {
-    const tab = createTab();
-    return tab.id;
-  });
+  const [tabs, setTabs] = useState<Tab[]>(() => [createTab()]);
+  const [activeTabId, setActiveTabId] = useState<string>(() => tabs[0].id);
   const [bookmarks, setBookmarks] = useState<Bookmark[]>(() => {
     const saved = localStorage.getItem('es_bookmarks');
     return saved ? JSON.parse(saved) : [
