@@ -24,8 +24,8 @@ export const AdminLogin = ({ onLogin, onClose, error }: AdminLoginProps) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-md">
-      <div className={`admin-border glass-card rounded-2xl p-6 w-80 max-w-[90vw] shadow-2xl fade-in-up ${shake ? 'animate-bounce' : ''}`}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white">
+      <div className={`w-full h-full overflow-y-auto px-6 py-12 sm:px-[max(2rem,calc((100vw-28rem)/2))] flex flex-col justify-center ${shake ? 'animate-bounce' : ''}`}>
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">

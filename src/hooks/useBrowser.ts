@@ -62,6 +62,15 @@ export const useBrowser = () => {
       }
     }
 
+    // Third-party services run in the top-level browser, where login, media,
+    // and sites that prohibit framing work normally.
+    if (finalUrl !== HOME_URL) {
+      const destination = new URL(finalUrl);
+      if (!['https:', 'http:'].includes(destination.protocol)) return;
+      window.location.assign(destination.href);
+      return;
+    }
+
     setTabs(prev => prev.map(tab => {
       if (tab.id !== id) return tab;
       const newHistory = tab.history.slice(0, tab.historyIndex + 1);

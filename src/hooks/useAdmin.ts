@@ -33,7 +33,7 @@ export const useAdmin = () => {
       setLoginError('');
       return true;
     }
-    setLoginError('Incorrect password. Default: 1122');
+    setLoginError('Incorrect password. Please try again.');
     return false;
   }, []);
 
