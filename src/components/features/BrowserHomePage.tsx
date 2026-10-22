@@ -1,8 +1,5 @@
-import { useState, useCallback } from 'react';
-import { Search, Zap, Shield, Sparkles, Globe, BookOpen, Clock, TrendingUp } from 'lucide-react';
-import { SEARCH_ENGINES } from '@/constants/languages';
-import heroBanner from '@/assets/hero-banner.jpg';
-import logo from '@/assets/logo.png';
+import { useEffect, useState, type FormEvent } from 'react';
+import { Search, ArrowUpRight, CalendarDays, Globe } from 'lucide-react';
 
 interface BrowserHomePageProps {
   onNavigate: (url: string) => void;
@@ -11,177 +8,84 @@ interface BrowserHomePageProps {
   launcherPrimary: string;
 }
 
-const quickLinks = [
-  { name: 'Google', url: 'https://www.google.com', color: 'from-blue-500 to-blue-600', letter: 'G' },
-  { name: 'YouTube', url: 'https://www.youtube.com', color: 'from-red-500 to-red-600', letter: 'Y' },
-  { name: 'Wikipedia', url: 'https://en.wikipedia.org', color: 'from-gray-600 to-gray-700', letter: 'W' },
-  { name: 'GitHub', url: 'https://github.com', color: 'from-gray-800 to-gray-900', letter: 'Gh' },
-  { name: 'Twitter', url: 'https://twitter.com', color: 'from-sky-400 to-sky-500', letter: 'X' },
-  { name: 'Reddit', url: 'https://www.reddit.com', color: 'from-orange-500 to-orange-600', letter: 'R' },
-  { name: 'LinkedIn', url: 'https://linkedin.com', color: 'from-blue-700 to-blue-800', letter: 'Li' },
-  { name: 'News', url: 'https://news.google.com', color: 'from-emerald-500 to-emerald-600', letter: 'N' },
+const groups = [
+  { title: 'Everyday essentials', links: [
+    ['Google', 'https://www.google.com', 'G'], ['Gmail', 'https://mail.google.com', 'M'],
+    ['Google Maps', 'https://maps.google.com', 'Mp'], ['Google Drive', 'https://drive.google.com', 'Dr'],
+    ['Google Calendar', 'https://calendar.google.com', 'Ca'], ['Translate', 'https://translate.google.com', 'Tr'],
+  ] },
+  { title: 'Social & communities', links: [
+    ['WhatsApp', 'https://web.whatsapp.com', 'Wa'], ['Facebook', 'https://www.facebook.com', 'Fb'],
+    ['Instagram', 'https://www.instagram.com', 'Ig'], ['X', 'https://x.com', 'X'],
+    ['LinkedIn', 'https://www.linkedin.com', 'Li'], ['Reddit', 'https://www.reddit.com', 'Re'],
+    ['Telegram', 'https://web.telegram.org', 'Tg'], ['Discord', 'https://discord.com/app', 'Di'],
+  ] },
+  { title: 'Video, channels & audio', links: [
+    ['YouTube', 'https://www.youtube.com', 'Yt'], ['YouTube Music', 'https://music.youtube.com', 'Ym'],
+    ['Spotify', 'https://open.spotify.com', 'Sp'], ['Twitch', 'https://www.twitch.tv', 'Tw'],
+    ['BBC News', 'https://www.bbc.com/news', 'BBC'], ['Al Jazeera', 'https://www.aljazeera.com', 'AJ'],
+  ] },
+  { title: 'AI, creation & discovery', links: [
+    ['ChatGPT', 'https://chatgpt.com', 'AI'], ['Gemini', 'https://gemini.google.com', 'Ge'],
+    ['Claude', 'https://claude.ai', 'Cl'], ['Perplexity', 'https://www.perplexity.ai', 'Pe'],
+    ['Canva', 'https://www.canva.com', 'Cv'], ['Figma', 'https://www.figma.com', 'Fi'],
+    ['GitHub', 'https://github.com', 'Gh'], ['Wikipedia', 'https://www.wikipedia.org', 'W'],
+    ['Notion', 'https://www.notion.so', 'N'], ['Khan Academy', 'https://www.khanacademy.org', 'Ka'],
+  ] },
 ];
 
-const stats = [
-  { label: 'Ultra Fast', value: '< 0.1s', icon: Zap, color: 'text-amber-500' },
-  { label: 'Secure', value: '256-bit', icon: Shield, color: 'text-emerald-500' },
-  { label: 'Smart', value: 'AI+', icon: Sparkles, color: 'text-purple-500' },
-  { label: 'Global', value: '100+', icon: Globe, color: 'text-blue-500' },
-];
-
-export const BrowserHomePage = ({ onNavigate, isRTL, launcherPrimary }: BrowserHomePageProps) => {
+export const BrowserHomePage = ({ onNavigate, isRTL }: BrowserHomePageProps) => {
   const [query, setQuery] = useState('');
-  const [activeEngine, setActiveEngine] = useState('google');
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(new Date()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
 
-  const handleSearch = useCallback(() => {
-    if (!query.trim()) return;
-    const engine = SEARCH_ENGINES.find(e => e.id === activeEngine)!;
-    if (query.startsWith('http://') || query.startsWith('https://') || (query.includes('.') && !query.includes(' '))) {
-      onNavigate(query.includes('://') ? query : 'https://' + query);
-    } else {
-      onNavigate(engine.url + encodeURIComponent(query));
-    }
-    setQuery('');
-  }, [query, activeEngine, onNavigate]);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') handleSearch();
+  const search = (event: FormEvent) => {
+    event.preventDefault();
+    const value = query.trim();
+    if (!value) return;
+    onNavigate(/^(https?:\/\/)/i.test(value) ? value : /^[\w.-]+\.[a-z]{2,}([/:?#].*)?$/i.test(value)
+      ? `https://${value}` : `https://www.google.com/search?q=${encodeURIComponent(value)}`);
   };
 
   return (
-    <div className={`h-full overflow-y-auto gradient-bg-animated ${isRTL ? 'rtl' : 'ltr'}`}>
-      {/* Animated background orbs */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="orb-1 absolute top-20 left-20 w-64 h-64 rounded-full opacity-20"
-          style={{ background: 'radial-gradient(circle, rgba(16,185,129,0.4) 0%, transparent 70%)' }} />
-        <div className="orb-2 absolute top-40 right-32 w-48 h-48 rounded-full opacity-15"
-          style={{ background: 'radial-gradient(circle, rgba(220,38,38,0.4) 0%, transparent 70%)' }} />
-        <div className="orb-3 absolute bottom-40 left-1/2 w-56 h-56 rounded-full opacity-15"
-          style={{ background: 'radial-gradient(circle, rgba(245,158,11,0.3) 0%, transparent 70%)' }} />
-      </div>
+    <div className="h-full overflow-y-auto bg-[#f6f8f5] text-slate-800" dir={isRTL ? 'rtl' : 'ltr'}>
+      <header className="grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_auto_1fr] items-center gap-3 border-b border-emerald-900/10 bg-white px-4 sm:px-8 py-3" dir="ltr">
+        <h1 className="text-xs font-bold tracking-wide text-emerald-900">ES Browser</h1>
+        <p lang="ur" dir="rtl" className="col-span-2 row-start-1 sm:row-auto sm:col-span-1 text-center text-base font-semibold bg-gradient-to-r from-emerald-700 via-rose-600 to-amber-600 bg-clip-text text-transparent">بسم اللّٰہ الرحمٰن الرحیم</p>
+        <time dateTime={now.toISOString()} className="flex items-center justify-end gap-2 text-right text-[11px] leading-4 tabular-nums text-slate-600">
+          <CalendarDays className="h-4 w-4 text-emerald-700" />
+          <span>{now.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}<br />{now.toLocaleTimeString()}</span>
+        </time>
+      </header>
 
-      <div className="relative z-10 max-w-3xl mx-auto px-4 py-8">
-        {/* Logo + Title */}
-        <div className="text-center mb-8 fade-in-up">
-          <div className="flex items-center justify-center gap-3 mb-3">
-            <div className="w-12 h-12 float-anim tube-glow rounded-2xl overflow-hidden glass-card flex items-center justify-center">
-              <img src={logo} alt="UniOrbi" className="w-10 h-10 object-contain" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-black shimmer-text tracking-tight">ES Browser</h1>
-              <p className="text-xs font-medium text-emerald-600 tracking-widest uppercase">UniOrbi Platform</p>
-            </div>
-          </div>
-          <p className="text-sm text-gray-500 font-medium">Fast · Secure · Beautiful · Intelligent</p>
-        </div>
+      <main className="px-4 sm:px-8 lg:px-12 py-6 max-w-[1600px] mx-auto">
+        <form onSubmit={search} role="search" className="flex items-center gap-3 rounded-2xl border border-emerald-900/15 bg-white px-4 py-3 mb-7 shadow-sm focus-within:ring-2 focus-within:ring-emerald-600">
+          <Search className="w-5 h-5 text-emerald-700 shrink-0" />
+          <input aria-label="Search Google or enter a website" value={query} onChange={e => setQuery(e.target.value)} placeholder="Search Google or enter a website" className="min-w-0 flex-1 bg-transparent text-sm outline-none" />
+          <button type="submit" className="rounded-xl bg-emerald-800 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-900">Search</button>
+        </form>
 
-        {/* Hero Banner */}
-        <div className="relative rounded-2xl overflow-hidden mb-6 tube-glow fade-in-up" style={{ animationDelay: '0.1s' }}>
-          <img src={heroBanner} alt="ES Browser" className="w-full h-32 object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-r from-white/60 via-transparent to-white/60 flex items-center justify-center">
-            <div className="text-center">
-              <p className="text-base font-bold text-emerald-800 glow-emerald digital-display">UniOrbi · ES Browser</p>
-              <p className="text-xs text-gray-600">The Smartest Way to Browse</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Search Engines */}
-        <div className="flex gap-1 mb-2 overflow-x-auto pb-1 fade-in-up" style={{ animationDelay: '0.15s' }}>
-          {SEARCH_ENGINES.map(eng => (
-            <button
-              key={eng.id}
-              onClick={() => setActiveEngine(eng.id)}
-              className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
-                activeEngine === eng.id
-                  ? 'bg-emerald-500 text-white shadow-md shadow-emerald-200'
-                  : 'glass-card text-gray-600 hover:bg-emerald-50'
-              }`}
-            >
-              {eng.name}
-            </button>
+        <div className="mb-6 flex items-center gap-2 text-xs text-slate-500"><Globe className="w-4 h-4" />Your digital world · Open any platform in one click</div>
+        <div className="space-y-7">
+          {groups.map((group, index) => (
+            <section key={group.title} aria-labelledby={`group-${index}`}>
+              <div className="mb-3 flex items-center gap-3"><span className="font-mono text-[10px] text-emerald-700">0{index + 1}</span><h2 id={`group-${index}`} className="text-sm font-semibold">{group.title}</h2><div className="h-px flex-1 bg-emerald-900/10" /></div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
+                {group.links.map(([name, url, mark]) => (
+                  <a key={url} href={url} className="group flex min-w-0 items-center gap-3 rounded-xl border border-slate-200/80 bg-white p-3 sm:p-4 transition-colors hover:border-emerald-500 hover:bg-emerald-50 focus-visible:outline-2 focus-visible:outline-emerald-700">
+                    <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-xs font-bold ${['bg-emerald-100 text-emerald-800', 'bg-sky-100 text-sky-800', 'bg-rose-100 text-rose-800', 'bg-amber-100 text-amber-800'][index]}`}>{mark}</span>
+                    <span className="flex-1 text-xs font-semibold break-words">{name}</span><ArrowUpRight className="h-3 w-3 shrink-0 text-slate-400 group-hover:text-emerald-700" />
+                  </a>
+                ))}
+              </div>
+            </section>
           ))}
         </div>
-
-        {/* Search Bar */}
-        <div className="relative mb-6 fade-in-up" style={{ animationDelay: '0.2s' }}>
-          <div className="glass-card rounded-2xl tube-border-emerald flex items-center gap-2 px-4 py-3 transition-all duration-300 focus-within:shadow-lg focus-within:shadow-emerald-100">
-            <Search className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-            <input
-              type="text"
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Search or enter URL..."
-              className="flex-1 bg-transparent outline-none text-sm text-gray-800 placeholder:text-gray-400"
-            />
-            <button
-              onClick={handleSearch}
-              className="px-4 py-1.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-xs font-semibold rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition-all duration-200 shadow-md shadow-emerald-200"
-            >
-              Go
-            </button>
-          </div>
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-4 gap-2 mb-6 fade-in-up" style={{ animationDelay: '0.25s' }}>
-          {stats.map(stat => (
-            <div key={stat.label} className="glass-card rounded-xl p-3 text-center card-3d">
-              <stat.icon className={`w-4 h-4 ${stat.color} mx-auto mb-1`} />
-              <p className="text-sm font-bold text-gray-800">{stat.value}</p>
-              <p className="text-xs text-gray-500">{stat.label}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Quick Links */}
-        <div className="mb-6 fade-in-up" style={{ animationDelay: '0.3s' }}>
-          <div className="flex items-center gap-2 mb-3">
-            <TrendingUp className="w-4 h-4 text-emerald-500" />
-            <h3 className="text-sm font-semibold text-gray-700">Quick Access</h3>
-          </div>
-          <div className="grid grid-cols-4 gap-2">
-            {quickLinks.map(link => (
-              <button
-                key={link.name}
-                onClick={() => onNavigate(link.url)}
-                className="glass-card rounded-xl p-3 flex flex-col items-center gap-1 card-3d hover:scale-105 transition-all duration-200 group"
-              >
-                <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${link.color} flex items-center justify-center text-white text-xs font-bold group-hover:shadow-md transition-shadow`}>
-                  {link.letter}
-                </div>
-                <span className="text-xs text-gray-600 font-medium">{link.name}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Feature Cards */}
-        <div className="grid grid-cols-3 gap-3 fade-in-up" style={{ animationDelay: '0.35s' }}>
-          <div className="glass-emerald rounded-xl p-3 text-center card-3d cursor-pointer">
-            <BookOpen className="w-5 h-5 text-emerald-600 mx-auto mb-1" />
-            <p className="text-xs font-semibold text-emerald-800">Bookmarks</p>
-          </div>
-          <div className="glass-crimson rounded-xl p-3 text-center card-3d cursor-pointer">
-            <Clock className="w-5 h-5 text-red-500 mx-auto mb-1" />
-            <p className="text-xs font-semibold text-red-700">History</p>
-          </div>
-          <div className="glass-gold rounded-xl p-3 text-center card-3d cursor-pointer">
-            <Sparkles className="w-5 h-5 text-amber-500 mx-auto mb-1" />
-            <p className="text-xs font-semibold text-amber-700">Smart AI</p>
-          </div>
-        </div>
-
-        {/* Marquee */}
-        <div className="mt-6 glass-emerald rounded-xl py-2 overflow-hidden tube-border-emerald">
-          <div className="marquee-container">
-            <div className="marquee-content text-xs font-semibold text-emerald-700">
-              {Array(4).fill('⚡ ES Browser — UniOrbi Platform &nbsp;&nbsp;•&nbsp;&nbsp; 🛡️ Secure Browsing &nbsp;&nbsp;•&nbsp;&nbsp; 🎵 Built-in Media Player &nbsp;&nbsp;•&nbsp;&nbsp; 🖼️ Native Gallery &nbsp;&nbsp;•&nbsp;&nbsp; 🌍 Multi-language Support &nbsp;&nbsp;•&nbsp;&nbsp; ⚙️ Admin Panel &nbsp;&nbsp;•&nbsp;&nbsp; 🎨 8 Launcher Themes &nbsp;&nbsp;&nbsp;&nbsp;').join('')}
-            </div>
-          </div>
-        </div>
-      </div>
+        <p className="mt-8 text-[11px] text-slate-500">Platforms open in this tab. Use your browser’s Back button to return. Some services require an account or regional availability.</p>
+      </main>
     </div>
   );
 };

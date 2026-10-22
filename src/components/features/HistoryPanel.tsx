@@ -75,7 +75,7 @@ export const HistoryPanel = ({ history, onNavigate, onClear, onClose }: HistoryP
                 <p className="text-xs font-medium text-gray-700 truncate">{entry.url}</p>
                 <p className="text-xs text-gray-400">{formatDate(entry.visitedAt)}</p>
               </div>
-              <button onClick={e => { e.stopPropagation(); window.open(entry.url, '_blank'); }}
+              <button onClick={e => { e.stopPropagation(); onNavigate(entry.url); }}
                 className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-blue-100 text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
                 <ExternalLink className="w-3 h-3" />
               </button>

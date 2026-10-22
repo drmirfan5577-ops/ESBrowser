@@ -104,7 +104,7 @@ export const BookmarksPanel = ({ bookmarks, onNavigate, onRemove, onAdd, current
                 <p className="text-xs text-gray-400 truncate">{bm.url}</p>
               </div>
               <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button onClick={e => { e.stopPropagation(); window.open(bm.url, '_blank'); }} className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-blue-100 text-blue-400">
+                <button onClick={e => { e.stopPropagation(); onNavigate(bm.url); }} className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-blue-100 text-blue-400">
                   <ExternalLink className="w-3 h-3" />
                 </button>
                 <button onClick={e => { e.stopPropagation(); onRemove(bm.id); }} className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-red-100 text-red-400">

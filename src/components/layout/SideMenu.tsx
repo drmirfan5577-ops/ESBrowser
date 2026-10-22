@@ -34,9 +34,9 @@ export const SideMenu = ({ isOpen, onClose, onOpenAdmin, activePanel, onSetPanel
       )}
       {/* Drawer */}
       <div className={cn(
-        "fixed top-0 h-full w-72 z-50 glass-card flex flex-col transition-transform duration-300 ease-in-out shadow-2xl",
+        "fixed inset-0 h-[100dvh] w-full z-50 glass-card flex flex-col transition-transform duration-300 ease-in-out shadow-2xl",
         isRTL ? "right-0" : "right-0",
-        isOpen ? "translate-x-0" : "translate-x-full"
+        isOpen ? "translate-x-0" : "translate-x-full invisible pointer-events-none"
       )}>
         {/* Header */}
         <div className="glass-emerald border-b border-emerald-100 px-4 py-4 flex items-center justify-between flex-shrink-0">

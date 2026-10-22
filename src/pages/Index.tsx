@@ -54,7 +54,7 @@ const Index = () => {
 
   return (
     <div className={cn(
-      "h-screen w-screen flex flex-col overflow-hidden bg-white",
+      "h-[100dvh] w-full flex flex-col overflow-hidden bg-white",
       `bg-gradient-to-br ${theme.currentLauncher.bg}`
     )}>
       {/* Admin Panel */}
@@ -71,6 +71,7 @@ const Index = () => {
           onUpdate={admin.updateSettings}
           onClose={admin.closeAdmin}
           onLogout={admin.logout}
+          onOpenFeature={(id) => { admin.closeAdmin(); handleSetPanel(id); }}
           onSetLauncher={(id) => {
             theme.setLauncher(id as LauncherId);
             admin.updateSettings({ defaultLauncher: id });
@@ -107,8 +108,7 @@ const Index = () => {
         {/* Side Panel */}
         {activePanel && (
           <div className={cn(
-            "flex-shrink-0 border-r border-gray-100 bg-white/95 overflow-hidden flex flex-col",
-            activePanel === 'media' ? "w-full absolute inset-0 z-30" : "w-72"
+            "fixed inset-0 z-30 w-full bg-white overflow-hidden flex flex-col"
           )}>
             {activePanel === 'bookmarks' && (
               <BookmarksPanel
@@ -163,7 +163,7 @@ const Index = () => {
         )}
 
         {/* Browser Frame */}
-        {activePanel !== 'media' && (
+        {!activePanel && (
           <div className="flex-1 overflow-hidden relative">
             {activeTab && (
               <BrowserFrame
@@ -189,14 +189,7 @@ const Index = () => {
         isRTL={lang.isRTL}
       />
 
-      {/* Status Bar / Marquee at very bottom */}
-      <div className="flex-shrink-0 h-5 gradient-bg-animated border-t border-gray-100 flex items-center overflow-hidden">
-        <div className="marquee-container flex-1">
-          <div className="marquee-content text-xs font-semibold" style={{ color: theme.currentLauncher.primary }}>
-            {Array(6).fill('⚡ ES Browser · UniOrbi.Com &nbsp;·&nbsp; Fast · Secure · Beautiful &nbsp;·&nbsp; Admin: Password 1122 &nbsp;·&nbsp; Multi-language: EN | UR | AR &nbsp;·&nbsp; 8 Launcher Themes &nbsp;·&nbsp; Ultra HD Media Player &nbsp;·&nbsp; Built-in Gallery &nbsp;·&nbsp; PWA Ready &nbsp;·&nbsp; ').join('')}
-          </div>
-        </div>
-      </div>
+
     </div>
   );
 };
